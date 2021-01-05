@@ -1,0 +1,6 @@
+[submodule "RLHookLib/libs/pybind11"]
+	path = RLHookLib/libs/pybind11
+	url = https://github.com/pybind/pybind11.git
+[submodule "RLHookLib/libs/Detours/Detours"]
+	path = RLHookLib/libs/Detours/Detours
+	url = https://github.com/microsoft/Detours.git

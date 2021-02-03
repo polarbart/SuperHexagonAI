@@ -43,8 +43,6 @@ PYBIND11_MODULE(pyrlhook, m) {
 	        .value("UINT8", PixelDataType::UBYTE)
 	        .value("FLOAT32", PixelDataType::FLOAT32);
 
-    // py::scoped_interpreter guard {};
-    py::dict locals;
-    auto path = py::module::import("sys").attr("prefix").cast<std::string>().append("\\Lib\\site-packages");
+    auto path = py::module::import("sys").attr("prefix").cast<std::string>() + "\\Lib\\site-packages";
 	GameInterface::basePath = path;
 }

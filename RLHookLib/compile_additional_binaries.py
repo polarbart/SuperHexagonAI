@@ -37,9 +37,7 @@ def build_cmake_project(
         f'-DCMAKE_RUNTIME_OUTPUT_DIRECTORY={out_dir}',
         f'-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{cfg.upper()}={out_dir}',
         f'-DCMAKE_ARCHIVE_OUTPUT_DIRECTORY_{cfg.upper()}={out_dir}',
-        f'-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_{cfg.upper()}={out_dir}',
-        #f'-DPYTHON_EXECUTABLE={sys.executable}',
-        #f'-DCMAKE_BUILD_TYPE={cfg.upper()}'
+        f'-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_{cfg.upper()}={out_dir}'
     ]
     if additional_binaries:
         cmake_args += ['-DONLY_ADDITIONAL_BINARIES=ON']

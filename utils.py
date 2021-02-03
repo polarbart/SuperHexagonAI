@@ -1,7 +1,6 @@
 import numpy as np
 import torch
 import torch.nn as nn
-import pickle
 import torch.nn.functional as F
 
 
@@ -224,7 +223,7 @@ class NoisyLinear(nn.Module):
 
 class Network(nn.Module):
 
-    def __init__(self, n_frames, n_actions, n_atoms, hidden_size=1024):
+    def __init__(self, n_frames, n_actions, n_atoms):
         super().__init__()
 
         self.n_actions = n_actions
@@ -252,11 +251,11 @@ class Network(nn.Module):
         self.conv_fc_output_size = 5 * 5 * 128
 
         self.h = nn.Sequential(
-            nn.Linear(self.conv_f_output_size + self.conv_fc_output_size, hidden_size),
+            nn.Linear(self.conv_f_output_size + self.conv_fc_output_size, 1024),
             nn.LeakyReLU(),
-            NoisyLinear(hidden_size, hidden_size // 2),
+            NoisyLinear(1024, 512),
             nn.LeakyReLU(),
-            NoisyLinear(hidden_size // 2, n_actions * n_atoms)
+            NoisyLinear(512, n_actions * n_atoms)
         )
 
     def forward(self, f, fc, log=False):

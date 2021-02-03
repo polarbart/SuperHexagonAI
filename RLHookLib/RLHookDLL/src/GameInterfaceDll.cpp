@@ -229,7 +229,7 @@ void GameInterface::onDetach() {
 
     if (isOutOfRenderHook != INVALID_HANDLE_VALUE) {
         WaitForSingleObject(isOutOfRenderHook, 1000);
-        // just to make sure that the game thread is out of this module, wait for another 100ms
+        // just to make sure that the render thread is out of this module, wait for another 100ms
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         CloseHandle(isOutOfRenderHook);
         isOutOfRenderHook = INVALID_HANDLE_VALUE;
@@ -276,7 +276,9 @@ void WINAPI GameInterface::hWglSwapBuffers(HDC arg) {
         tWglSwapBuffers(arg);
 
         if (clientConnected) {
+            // notify the python process that the game advanced one frame
             pipe.write(true);
+            // wait for the python process to request the next frame
             readPixelBuffer = pipe.read<bool>([] { return !isFinished; });
         }
 

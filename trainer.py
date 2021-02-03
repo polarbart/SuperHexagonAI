@@ -1,8 +1,8 @@
 import numpy as np
 import torch
 import torch.nn.functional as F
-from Utils import MemoryBuffer, Network, ExpLrDecay
-from SuperHexagon import SuperHexagonInterface
+from utils import MemoryBuffer, Network, ExpLrDecay
+from superhexagon import SuperHexagonInterface
 from time import time
 import pickle
 import os
@@ -12,21 +12,22 @@ class Trainer:
     def __init__(
             self,
             capacity_per_level=500000,
-            warmup_steps=50000,
+            warmup_steps=100000,
             n_frames=4,
-            n_atoms=21,
+            n_atoms=51,
             v_min=-1,
             v_max=0,
             gamma=.99,
-            hidden_size=512,
             device='cuda',
             batch_size=48,
             lr=0.0000625 * 2,
-            lr_decay=0.985,
-            update_target_net_every=16000,
-            train_every=4,
+            lr_decay=0.99,
+            update_target_net_every=25000,
+            train_every=6,
             frame_skip=4,
-            disable_noisy_after=2000000
+            disable_noisy_after=2000000,
+            super_hexagon_path='C:\\Program Files (x86)\\Steam\\steamapps\\common\\Super Hexagon\\superhexagon.exe',
+            run_afap=True
     ):
 
         # training objects
@@ -39,8 +40,8 @@ class Trainer:
             gamma,
             device=device
         )
-        self.net = Network(n_frames, SuperHexagonInterface.n_actions, n_atoms, hidden_size).to(device)
-        self.target_net = Network(n_frames, SuperHexagonInterface.n_actions, n_atoms, hidden_size).to(device)
+        self.net = Network(n_frames, SuperHexagonInterface.n_actions, n_atoms).to(device)
+        self.target_net = Network(n_frames, SuperHexagonInterface.n_actions, n_atoms).to(device)
         self.target_net.load_state_dict(self.net.state_dict())
         self.optimizer = torch.optim.Adam(self.net.parameters(), lr=lr, eps=1.5e-4)
         self.lr_scheduler = torch.optim.lr_scheduler.LambdaLR(self.optimizer, ExpLrDecay(lr_decay, min_factor=.1))
@@ -73,6 +74,9 @@ class Trainer:
         self.times = []
         self.iteration = 0
 
+        self.super_hexagon_path = super_hexagon_path
+        self.run_afap = run_afap
+
     def warmup(self, game, log_every):
         t = True
         for i in range(1, self.warmup_steps + 1):
@@ -96,7 +100,7 @@ class Trainer:
             log_every=1000,
     ):
 
-        game = SuperHexagonInterface(self.frame_skip)
+        game = SuperHexagonInterface(self.frame_skip, self.super_hexagon_path, run_afap=self.run_afap, allow_game_restart=True)
 
         # if trainer was loaded, select the level that was played the least
         if any(x != 0 for x in self.total_simulated_steps):
@@ -256,7 +260,7 @@ class Trainer:
 
 if __name__ == '__main__':
 
-    save_name = 'trainer_full'
+    save_name = 'super_hexagon_trainer'
     load = os.path.exists(save_name)
 
     if load:
@@ -270,7 +274,6 @@ if __name__ == '__main__':
             v_min=-1,
             v_max=0,
             gamma=.99,
-            hidden_size=1024,
             device='cuda',
             batch_size=48,
             lr=0.0000625 * 2,
@@ -278,7 +281,9 @@ if __name__ == '__main__':
             update_target_net_every=25000,
             train_every=6,
             frame_skip=4,
-            disable_noisy_after=2000000
+            disable_noisy_after=2000000,
+            super_hexagon_path='C:\\Program Files (x86)\\Steam\\steamapps\\common\\Super Hexagon\\superhexagon.exe',
+            run_afap=True
         )
 
     trainer.train(save_every=200000, save_name=save_name)

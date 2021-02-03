@@ -36,6 +36,11 @@ GameInterface::GameInterface(DWORD pid,
         gameProcess = OpenProcess(OPEN_PROCESS_ACCESS_RIGHTS, FALSE, pid);
         Utils::checkError(gameProcess == nullptr, "OpenProcess");
 
+        // check if the game uses OpenGL
+        HMODULE openGlModule = Utils::getModuleBaseAddress(gameProcess, "Opengl32.dll");
+        if (openGlModule == nullptr)
+            throw std::runtime_error("Does the game use OpenGL? Could not find \"Opengl32.dll\" within the target process.");
+
         // create mailslot to which the target process can communicate exceptions
         exceptionMailSlot = Utils::createMailslot(EXCEPTION_MS_NAME);
 
@@ -142,7 +147,9 @@ std::optional<py::array> GameInterface::step(bool readPixelBuffer) {
     checkForException();
 
     try {
+        // request the next frame
         pipe.write(readPixelBuffer);
+        // wait for the game to advance one fame
         pipe.read<bool>();
     } catch (...) {
         checkForException();
@@ -152,6 +159,7 @@ std::optional<py::array> GameInterface::step(bool readPixelBuffer) {
     if (!readPixelBuffer)
         return std::nullopt;
 
+    // return the screen which was written into the shared memory 'pBuf'
     return py::array(
             pixelDataType == UBYTE ? py::dtype::of<std::uint8_t>() : py::dtype::of<std::float_t>(),
             {height, width, channels},

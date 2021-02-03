@@ -1,26 +1,27 @@
 import numpy as np
 import torch
-from Utils import Network
-from SuperHexagon import SuperHexagonInterface
+from utils import Network
+from superhexagon import SuperHexagonInterface
 from itertools import count
 
 
 if __name__ == '__main__':
 
     # parameters
+    level = 0
+    device = 'cuda'
+    net_path = 'super_hexagon_net'
+
     n_frames = 4
     frame_skip = 4
     log_every = 1000
     n_atoms = 51
-    level = 0
-    net_path = 'net1'
-    device = 'cuda'
 
     # setup
     fp, fcp = np.zeros((1, n_frames, *SuperHexagonInterface.frame_size), dtype=np.bool), np.zeros((1, n_frames, *SuperHexagonInterface.frame_size_cropped), dtype=np.bool)
     support = np.linspace(-1, 0, n_atoms)
 
-    net = Network(n_frames, SuperHexagonInterface.n_actions, n_atoms, 1024).cuda()
+    net = Network(n_frames, SuperHexagonInterface.n_actions, n_atoms).cuda()
     net.load_state_dict(torch.load(net_path))
     net.eval()
 

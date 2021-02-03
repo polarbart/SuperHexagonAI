@@ -120,6 +120,8 @@ class SuperHexagonInterface:
     def _attach_game(self):
         self.game = GameInterface('superhexagon.exe', PixelFormat.RGB, PixelDataType.UINT8)
 
+        # make the game think it runs at 62.5 FPS no matter how frequently self.game.step is called.
+        # afap -> as fast as possible
         if self.run_afap:
             self.game.run_afap(62.5)
 
@@ -200,7 +202,7 @@ class SuperHexagonInterface:
         for _ in range(30):
             self.game.step(False)
 
-    def _postprocess_frame(self, frame):
+    def _preprocess_frame(self, frame):
         f = cv2.cvtColor(cv2.resize(frame[:, 144:624], self.frame_size, interpolation=cv2.INTER_NEAREST), cv2.COLOR_RGB2GRAY)
         fc = cv2.cvtColor(cv2.resize(frame[150:330, 294:474], self.frame_size_cropped, interpolation=cv2.INTER_NEAREST), cv2.COLOR_RGB2GRAY)
         center_color = f[self.frame_size[0] // 2, self.frame_size[1] // 2]
@@ -236,7 +238,7 @@ class SuperHexagonInterface:
         self.steps_alive = self.get_n_survived_frames()
         self.simulated_steps = 0
 
-        return self._postprocess_frame(frame)
+        return self._preprocess_frame(frame)
 
     def step(self, action):
 
@@ -255,7 +257,7 @@ class SuperHexagonInterface:
 
         is_game_over = self.steps_alive < steps_alive_old + self.frame_skip
 
-        frame, frame_cropped = self._postprocess_frame(frame)
+        frame, frame_cropped = self._preprocess_frame(frame)
 
         if action == 1:
             self._left(False)

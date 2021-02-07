@@ -21,8 +21,8 @@ if __name__ == '__main__':
     fp, fcp = np.zeros((1, n_frames, *SuperHexagonInterface.frame_size), dtype=np.bool), np.zeros((1, n_frames, *SuperHexagonInterface.frame_size_cropped), dtype=np.bool)
     support = np.linspace(-1, 0, n_atoms)
 
-    net = Network(n_frames, SuperHexagonInterface.n_actions, n_atoms).cuda()
-    net.load_state_dict(torch.load(net_path))
+    net = Network(n_frames, SuperHexagonInterface.n_actions, n_atoms).to(device)
+    net.load_state_dict(torch.load(net_path, map_location=device))
     net.eval()
 
     game = SuperHexagonInterface(frame_skip=frame_skip, run_afap=False)

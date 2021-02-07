@@ -6,6 +6,7 @@
 #include <Shlwapi.h>
 #include <sstream>
 #include <psapi.h>
+#include <algorithm>
 
 
 #define MODULE_NAME_BUFFER_SIZE 512
@@ -146,10 +147,15 @@ HMODULE Utils::getModuleBaseAddress(HANDLE targetProcess, const std::string &mod
     if (moduleName.size() > MODULE_NAME_BUFFER_SIZE)
         throw std::runtime_error("getModuleBaseAddress failed since the module name was to long");
 
+    std::string sModuleName(moduleName);
+    std::transform(std::begin(sModuleName), std::end(sModuleName), std::begin(sModuleName), std::tolower);
+
     for (auto &m : modules) {
         DWORD success = GetModuleBaseName(targetProcess, m, moduleName2, MODULE_NAME_BUFFER_SIZE);
         Utils::checkError(!success, "GetModuleBaseName");
-        if (moduleName == moduleName2)
+        std::string sModuleName2(moduleName2);
+        std::transform(std::begin(sModuleName2), std::end(sModuleName2), std::begin(sModuleName2), std::tolower);
+        if (sModuleName == sModuleName2)
             return m;
     }
     return nullptr;

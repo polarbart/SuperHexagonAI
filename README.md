@@ -97,10 +97,12 @@ Note that both the python process as well as the game process need to be run wit
 In order to always run the game with admin privileges right click on the Super Hexagon executable `superhexagon.exe`, 
 select `Properties` and within the `Compatability` tab check `Run this program as an administrator`.
 
-Additionally, you need to compile the C++ library. 
-Make sure you have a Visual Studio compiler installed, including CMake.
-
 The game should be in windowed mode and VSync should be disabled.
+
+Additionally, you need to compile the C++ library. 
+Make sure you have a Visual Studio compiler (MSVC C++ x64/x86 build tools) installed, 
+including CMake (C++ CMake tools for Windows) and a Windows 10 SDK. 
+Also make sure that CMake can be called from the commandline.
 
 Clone the repository.
 ```
@@ -124,12 +126,14 @@ pip install .
 In order to run the AI, first download the pretrained network [super_hexagon_net](https://github.com/polarbart/SuperHexagonAI/releases/tag/v1.0)
 and place it in the main folder (i. e. the folder where `eval.py` is located).
 
-Then, start the game and execute the `eval.py` script, both with admin privileges.
+Then, start the game in windowed mode and execute the `eval.py` script, both with admin privileges.
 
 The level being played as well as other parameters can be adjusted within the script.
 
 ### Training
 In order to train your own AI run `trainer.py` with admin privileges. 
+
+Make sure that the game is in windowed mode and VSync is disabled.
 
 Note that the AI is trained on all six levels simultaneously and that you do not need to start the game manually, 
 since the script starts the game automatically. 
